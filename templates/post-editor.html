@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post editor</title>
+</head>
+<body>
+    <h1>Post editor</h1>
+    <form action="/update-post/{{ post.id }}" method="post">
+        <label for="title">Post title:</label>
+        <input name="title" type="text" value="{{ post.title }}"><br>
+
+        <label for="date">Post date:</label>
+        <input name="date" type="date" value="{{ post.date }}"><br>
+
+        <label for="content">Post content:</label><br>
+        <textarea name="content">{{ post.content }}</textarea><br>
+
+        <button type="submit">Post</button>
+    </form>
+</body>
+</html>
