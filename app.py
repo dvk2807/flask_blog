@@ -17,6 +17,11 @@ DEFAULT_POST_CONTENT = "No post content was provided."
 def main():
     return redirect("/post-list")
 
+@app.route("/post/<int:post_id>", methods=["GET"])
+def post(post_id):
+    post = Post.query.get(post_id)
+    return render_template("post.html", post=post)
+
 @app.route("/post-editor/<int:post_id>", methods=["GET"])
 def post_editor(post_id):
     post = Post.query.get(post_id)
