@@ -12,7 +12,7 @@ with app.app_context():
 
 @app.route("/")
 def main():
-    return redirect("/post-creation")
+    return redirect("/post-list")
 
 @app.route("/post-creation")
 def post_creation():
@@ -29,7 +29,9 @@ def create():
     db.session.add(post)
     db.session.commit()
     
-    posts = Post.query.all()
-    print(posts)
-    
     return redirect("/")
+
+@app.route("/post-list")
+def post_list():
+    posts = Post.query.all()
+    return render_template("post-list.html", posts=posts)
