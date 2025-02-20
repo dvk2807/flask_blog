@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ post.title }}</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
 </head>
 <body>
     <a href="/post-list">Post list</a>
-    
+
     <h1>{{ post.title }}</h1>
     <p><i>{{ post.date }}</i></p>
+
+    <hr>
 
     {{ post.content|safe }}
 </body>

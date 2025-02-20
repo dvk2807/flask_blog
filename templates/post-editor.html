@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post editor</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
 </head>
 <body>
     <h1>Post editor</h1>
+
+    <hr>
+    
     <form action="/update-post/{{ post.id }}" method="post">
         <label for="title">Post title:</label>
         <input name="title" type="text" value="{{ post.title }}"><br>

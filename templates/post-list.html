@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post list</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
 </head>
 <body>
     <h1>Post list</h1>
-    <a href="/create-post">create</a>
+
+    <hr>
+
+    <a href="/create-post">Create post</a>
     <ul>
         {% for post in posts %}
             <li>
