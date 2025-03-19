@@ -2,6 +2,8 @@ from flask import Flask, redirect, render_template, request
 from models import db, Post
 from config import Config
 from datetime import datetime
+from markdown import markdown
+from copy import deepcopy
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -19,7 +21,8 @@ def main():
 
 @app.route("/post/<int:post_id>", methods=["GET"])
 def post(post_id):
-    post = Post.query.get(post_id)
+    post = deepcopy(Post.query.get(post_id))
+    post.content = markdown(post.content)
     return render_template("post.html", post=post)
 
 @app.route("/post-editor/<int:post_id>", methods=["GET"])
