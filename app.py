@@ -1,9 +1,10 @@
 from flask import Flask, redirect, render_template, request
-from models import db, Post
+from models import db, Post, User
 from config import Config
 from datetime import datetime
 from markdown import markdown
 from copy import deepcopy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -80,3 +81,26 @@ def create_post():
     db.session.commit()
     
     return redirect(f"/post-editor/{post.id}")
+
+@app.route("/registration-form")
+def registration_form():
+    return render_template("registration-form.html", alert_message="")
+
+@app.route("/register-user", methods=["POST"])
+def register_user():
+    username = request.form.get("username")
+    if username is None or len(username) < 4 or 32 < len(username):
+        alert_message = "The username must be between 4 and 32 characters long"
+        return render_template("registration-form.html", alert_message=alert_message)
+    
+    password = request.form.get("password")
+    if password is None or len(password) < 8 or 32 < len(password):
+        alert_message = "The password must be between 8 and 32 characters long"
+        return render_template("registration-form.html", alert_message=alert_message)
+    password_hash = generate_password_hash(password)
+    
+    user = User(username=username, password_hash=password_hash)
+    db.session.add(user)
+    db.session.commit()
+
+    return redirect("/post-list")
