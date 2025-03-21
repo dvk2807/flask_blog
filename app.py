@@ -1,14 +1,26 @@
 from flask import Flask, redirect, render_template, request
+from flask_login import LoginManager, login_user, logout_user, current_user
 from models import db, Post, User
 from config import Config
 from datetime import datetime
 from markdown import markdown
 from copy import deepcopy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_sqlalchemy import SQLAlchemy
+
+login_manager = LoginManager()
+
+@login_manager.user_loader
+def load_user(user_id):
+    if user_id == "None":
+        return None
+    return User.query.get(int(user_id))
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
 db.init_app(app)
+login_manager.init_app(app)
 
 with app.app_context():
     db.create_all()
@@ -28,8 +40,12 @@ def post(post_id):
 
 @app.route("/post-editor/<int:post_id>", methods=["GET"])
 def post_editor(post_id):
+    print(current_user)
+    if not current_user.is_admin:
+        return redirect("/")
+    
     post = Post.query.get(post_id)
-    return render_template("post-editor.html", post=post)
+    return render_template("post-editor.html", post=post, alert="")
 
 @app.route("/update-post/<int:post_id>", methods=["GET", "POST"])
 def update_post(post_id):
@@ -98,9 +114,19 @@ def register_user():
         alert_message = "The password must be between 8 and 32 characters long"
         return render_template("registration-form.html", alert_message=alert_message)
     password_hash = generate_password_hash(password)
+
+    is_admin_string = request.form.get("is-admin")
+    is_admin = bool(is_admin_string == "on")
     
-    user = User(username=username, password_hash=password_hash)
+    user = User(
+        username=username,
+        password_hash=password_hash,
+        is_admin=is_admin,
+    )
+    
     db.session.add(user)
     db.session.commit()
+
+    login_user(user)
 
     return redirect("/post-list")
