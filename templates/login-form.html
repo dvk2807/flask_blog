@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login form</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
+</head>
+<body>
+    <h1>Login</h1>
+
+    <hr>
+    
+    <form action="/login-user" method="post">
+        <label for="username">Username: </label>
+        <input name="username" type="text" minlength="4" maxlength="32"><br>
+
+        <label for="password">Password:</label>
+        <input name="password" type="password" minlength="8", maxlength="32"><br>
+
+        <button type="submit">Login</button>
+    </form>
+    
+    <script>
+        if("{{alert_message}}".length > 0){
+            alert("{{alert_message}}")
+        }
+    </script>
+</body>
+</html>

@@ -40,7 +40,6 @@ def post(post_id):
 
 @app.route("/post-editor/<int:post_id>", methods=["GET"])
 def post_editor(post_id):
-    print(current_user)
     if not current_user.is_admin:
         return redirect("/")
     
@@ -49,6 +48,9 @@ def post_editor(post_id):
 
 @app.route("/update-post/<int:post_id>", methods=["GET", "POST"])
 def update_post(post_id):
+    if not current_user.is_admin:
+        return redirect("/")
+    
     post = Post.query.get(post_id)
     
     title = request.form.get("title")
@@ -80,6 +82,9 @@ def post_list():
 
 @app.route("/delete-post/<int:post_id>", methods=["GET"])
 def delete_post(post_id):
+    if not current_user.is_admin:
+        return redirect("/")
+    
     post = Post.query.get(post_id)
     db.session.delete(post)
     db.session.commit()
@@ -88,6 +93,9 @@ def delete_post(post_id):
 
 @app.route("/create-post", methods=["POST", "GET"])
 def create_post():
+    if not current_user.is_admin:
+        return redirect("/")
+    
     title = DEFAULT_POST_TITLE
     date = datetime.today()
     content = DEFAULT_POST_CONTENT
@@ -102,20 +110,30 @@ def create_post():
 def registration_form():
     return render_template("registration-form.html", alert_message="")
 
-@app.route("/register-user", methods=["POST"])
+@app.route("/register-user", methods=["POST", "GET"])
 def register_user():
     username = request.form.get("username")
+    password = request.form.get("password")
+    is_admin_string = request.form.get("is-admin")
+
+    print(username, password, is_admin_string)
+
     if username is None or len(username) < 4 or 32 < len(username):
         alert_message = "The username must be between 4 and 32 characters long"
         return render_template("registration-form.html", alert_message=alert_message)
     
-    password = request.form.get("password")
+    username_taken = User.query.filter_by(username=username).first()
+    if username_taken:
+        alert_message = "Username is already taken"
+        return render_template("registration-form.html", alert_message=alert_message)
+    
+    
     if password is None or len(password) < 8 or 32 < len(password):
         alert_message = "The password must be between 8 and 32 characters long"
         return render_template("registration-form.html", alert_message=alert_message)
     password_hash = generate_password_hash(password)
 
-    is_admin_string = request.form.get("is-admin")
+    
     is_admin = bool(is_admin_string == "on")
     
     user = User(
@@ -130,3 +148,26 @@ def register_user():
     login_user(user)
 
     return redirect("/post-list")
+
+@app.route("/login-form")
+def login_form():
+    return render_template("login-form.html", alert_message="")
+
+@app.route("/login-user", methods=["POST", "GET"])
+def login_user_():
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    print(username, password)
+
+    user = User.query.filter_by(username=username).first()
+    if user and check_password_hash(user.password_hash, password):
+        login_user(user)
+        return redirect("/post-list")
+    alert_message = "Wrong username or password"
+    return render_template("login-form.html", alert_message=alert_message)
+
+@app.route("/logout-user", methods=["POST", "GET"])
+def logout_user_():
+    logout_user()
+    return redirect("/")
